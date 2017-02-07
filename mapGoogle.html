@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        #googleMap {
+            height: 750px;
+        }
+        
+        .context_menu {
+            background-color: white;
+            border: none;
+            color: #000;
+            font-size: 13px;
+            width: 150px;
+            text-align: center;
+        }
+        
+        .context_menu_item {
+            padding: 6px 10px;
+        }
+        
+        .context_menu_item:hover {
+            background-color: #CCCCCC;
+        }
+ 
+        
+/*
+        .gm-style-iw + div {
+            display: none;
+        }
+*/
+
+    </style>
+</head>
+
+<body>
+    <div id="googleMap"></div>
+    <label style="display:none;" data-localize="map.Refresh" class="mapRefresh"></label>
+    <label style="display:none;" data-localize="map.light" class="mapLight"></label>
+    <label style="display:none;" data-localize="map.Status" class="mapStatus"></label>
+    <label style="display:none;" data-localize="map.Current" class="mapCurrent"></label>
+    <label style="display:none;" data-localize="map.Voltage" class="mapVoltage"></label>
+    <label style="display:none;" data-localize="map.Power" class="mapPower"></label>
+    <label style="display:none;" data-localize="map.Brightness" class="mapBrightness"></label>
+    <label style="display:none;" data-localize="map.TurnOn" class="mapTurnOn"></label>
+    <label style="display:none;" data-localize="map.TurnOff" class="mapTurnOff"></label>
+    <label style="display:none;" data-localize="map.bAdjustment" class="mapAdjustment"></label>
+    <label style="display:none;" data-localize="map.copyDevice" class="mapCopyDevice"></label>
+    <label style="display:none;" data-localize="map.Delete" class="mapDelete"></label>
+    <label style="display:none;" data-localize="map.Move" class="mapMove"></label>
+    <label style="display:none;" data-localize="map.SaveLocation" class="mapSaveLocation"></label>
+    <label style="display:none;" data-localize="streetLight.Brightness" class="sBrightness"></label>
+    <script src="js/common/all_child.js"></script>
+    <script src="js/common/ContextMenu.js"></script>
+    <script>
+        var mapRefresh = $('.mapRefresh').text();
+        var mapLight = $('.mapLight').text();
+        var mapStatus = $('.mapStatus').text();
+        var mapCurrent = $('.mapCurrent').text();
+        var mapVoltage = $('.mapVoltage').text();
+        var mapPower = $('.mapPower').text();
+        var mapBrightness = $('.mapBrightness').text();
+        var mapTurnOn = $('.mapTurnOn').text();
+        var mapTurnOff = $('.mapTurnOff').text();
+        var mapAdjustment = $('.mapAdjustment').text();
+        var mapCopyDevice = $('.mapCopyDevice').text();
+        var mapDelete = $('.mapDelete').text();
+        var mapMove = $('.mapMove').text();
+        var mapSaveLocation = $('.mapSaveLocation').text();
+        var sBrightness = $('.sBrightness').text();
+
+        var map;
+
+        var centerPoint = new google.maps.LatLng(23.129163, 113.264435);
+
+        function initialize() {
+            var mapProp = {
+                center: centerPoint, //中心坐标
+                zoom: 15, //缩放等级
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+            map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+
+            //添加刷新控件
+            var homeControlDiv = document.createElement('div');
+            var homeControl = new RefreshControl(homeControlDiv, map);
+            map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
+
+            var arr = [
+                23.129163, 113.264435,
+                'light_error',
+                '1246211',
+                'left_error',
+                37,
+                '异常',
+                406,
+                230,
+                10.25,
+                '01',
+                "1001"
+            ];
+
+            var arr1 = [
+                23.129963, 113.269435,
+                'light_normal',
+                '1246211',
+                'left_normal',
+                37,
+                '正常',
+                406,
+                230,
+                10.25,
+                '01',
+                '2001'
+            ];
+            //添加坐标点
+            getMaker(arr);
+            getMaker(arr1);
+        }
+
+        function getMaker(arr) {
+            var position = new google.maps.LatLng(arr[0], arr[1]);
+            var marker;
+            marker = new google.maps.Marker({
+                position: position,
+                icon: 'images/' + arr[2] + ".png",
+                draggable: false,
+                title: arr[11]
+            });
+            var html = '<div style="color:#000;" class="hideClose">' + '<div style="text-align:center;width:220px;height:30px;font-size:16px;font-weight:bold;">SN : ' + arr[3] + '</div>' + '<div style="float:left;text-align:center;width:80px;height:160px;">' + '<div style="position:absolute;width:37px;height:37px;top:80px;left:25px;background:url(images/' + arr[4] + '.png) no-repeat"></div>' + '</div>' + '<div style="float:right;text-align:left;width:120px;height:160px;line-height:25px;font-size:13px;">' + '<div>' + mapLight + ' : ' + arr[5] + '</div>' + '<div>' + mapStatus + ' : ' + arr[6] + '</div>' + '<div>' + mapCurrent + ' : ' + arr[7] + 'mA</div>' + '<div>' + mapVoltage + ' : ' + arr[8] + 'V</div>' + '<div>' + mapPower + ' : ' + arr[9] + 'W</div>' + '<div>' + mapBrightness + ' : ' + arr[10] + '</div>' + '</div>' + '</div>';
+            var infowindow = new google.maps.InfoWindow({
+                content: html,
+                maxWidth: 220
+            });
+          
+            marker.addListener('mouseover', function(event) {
+                // myCompOverlay.setMap(map);
+                infowindow.open(map, marker);
+            });
+
+            marker.addListener('mouseout', function(event) {
+                infowindow.close(map, marker);
+            });
+            var contextMenu = createContextMenu(marker);
+            marker.addListener('rightclick', function(e) {
+                contextMenu.show(e.latLng);
+            });
+               
+            marker.setMap(map);
+            
+            google.maps.event.addListener(infowindow, 'domready', function(latLng, eventName) {
+               $(".hideClose").parent().parent().parent().next().remove();//delete close button for infowindow
+            });
+           
+        }
+
+        function createContextMenu(marker) { //右键菜单
+
+            var contextMenuOptions = {};
+            contextMenuOptions.classNames = {
+                menu: 'context_menu',
+                menuSeparator: 'context_menu_separator' //menuSeparator菜单分割线,目前没有用到
+            };
+
+            //	菜单选项
+            var menuItems = [];
+            menuItems.push({
+                eventName: "mapTurnOn",
+                className: "context_menu_item", //控制子类选项的样式
+                label: mapTurnOn
+            });
+            menuItems.push({
+                eventName: "mapTurnOff",
+                className: "context_menu_item",
+                label: mapTurnOff
+            });
+            // menuItems.push({});
+            menuItems.push({
+                eventName: 'mapAdjustment',
+                className: "context_menu_item",
+                label: mapAdjustment
+            });
+            menuItems.push({
+                eventName: 'mapCopyDevice',
+                className: "context_menu_item",
+                label: mapCopyDevice
+            });
+            menuItems.push({
+                eventName: 'mapDelete',
+                className: "context_menu_item",
+                label: mapDelete
+            });
+            menuItems.push({
+                eventName: 'mapMove',
+                className: "context_menu_item",
+                label: mapMove
+            });
+            menuItems.push({
+                eventName: 'mapSaveLocation',
+                className: "context_menu_item",
+                label: mapSaveLocation
+            });
+            contextMenuOptions.menuItems = menuItems;
+
+            var contextMenu = new ContextMenu(map, contextMenuOptions);
+
+            //监听ContextMenu选择事件
+            google.maps.event.addListener(contextMenu, 'menu_item_selected', function(latLng, eventName) {
+                //	latLng 是当前坐标
+                //	eventName 对应menuItems的eventName               
+                switch (eventName) {
+                    case 'mapTurnOn': //开灯事件
+                        // console.log(11111);
+                        alert('ID:' + marker.title);
+                        break;
+                    case 'mapTurnOff': //关灯
+
+                        break;
+                    case 'mapAdjustment':
+                        var html ="<div style='color:#000;'>"+sBrightness+"<input id="+marker.title+" type='text' style='width:50px;margin-left:20px;border:1px solid #ccc;height: 30px;padding:3px;' value=1 /><button style='background-color:#EE4F3F;border:none;margin-left: 20px;color:#fff;width: 70px;height: 30px;' value='' onclick='turnLight(this)'>调节</button></div>";                        
+                        var infowindow = new google.maps.InfoWindow({
+                            content: html,
+                            maxWidth: 230
+                        }); 
+                        infowindow.open(map, marker);                       
+                        break;
+                    case 'mapCopyDevice':
+                        break;
+                    case 'mapDelete':
+                        marker.setMap(null);
+                        break;
+                    case 'mapMove':
+                        marker.draggable = true;  
+                        marker.setMap(map);
+                        break;
+                    case 'mapSaveLocation':
+                        marker.draggable = false;
+                        marker.setMap(map);
+
+                        alert('latLng:' + latLng);
+                        break;
+                    default:
+                        break;
+                }
+            });
+            return contextMenu;
+        }
+        function turnLight(obj){
+            var v =  $(obj).prev().val();//值
+            var id =  $(obj).prev().attr('id');//id
+             alert(v+"||"+id);
+//            if(!isNaN(v)){
+//                v++;
+//            }else{
+//                v = 1;
+//            }           
+//            $(obj).prev().val(v);         
+        } 
+
+        //刷新控件
+        function RefreshControl(controlDiv, map) {
+            controlDiv.style.padding = '5px';
+            var controlUI = document.createElement('div');
+            controlUI.style.backgroundColor = '#000';
+            controlUI.style.color = '#fff';
+            controlUI.style.width = '50px';
+            controlUI.style.height = '50px';
+            controlUI.style.opacity = '0.6';
+            controlUI.style.borderRadius = '50px';
+            controlUI.style.border = '1px solid';
+            controlUI.style.cursor = 'pointer';
+            controlUI.style.textAlign = 'center';
+            controlUI.title = mapRefresh;
+            controlDiv.appendChild(controlUI);
+            var controlText = document.createElement('div');
+            controlText.style.fontSize = '12px';
+            controlText.style.marginTop = '15px';
+            controlText.innerHTML = mapRefresh;
+            controlUI.appendChild(controlText);
+
+            google.maps.event.addDomListener(controlUI, 'click', function() {
+                $('#tab-general').empty();
+                //url里写请求的路径 (ajax)
+                var url = 'mapGoogle.html';
+                $('#tab-general').load(url);
+            });
+        }
+
+        $(function() {
+            initialize();
+        });
+
+    </script>
+</body>
+
+</html>
