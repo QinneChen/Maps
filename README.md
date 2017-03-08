@@ -2,13 +2,12 @@
 ### First , You need api key
 
 **目录**　
-*Readme.md  // help
-*js/common 
+ - Readme.md 
+ - js/common 
 :   ContextMenu.js          //  for google filemenu functions
-*baiduMap.html  //baidu map
-*google.html
-项目３
-:   定义 C
+ - baiduMap.html  //baidu map
+ - google.html
+ 
  
 
 ###########V1.0.0 
